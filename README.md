@@ -15,7 +15,10 @@ new CSSLength(length[, base])
 Pass a CSS length and an optional pixel base into the constructor.
 
 ```js
-const cssLength = new CSSLength('24px', 16);
+const cssLength = new CSSLength('24px', {
+  base: 16,
+  formatter(value) { return value; }
+});
 ```
 
 You can then access the conversion as a property.
@@ -31,25 +34,31 @@ cssLength.in; // => "0.25in"
 
 Once you've created a new `CSSLength`, the following properties are available:
 
-### raw
+### $config
+
+The options used for conversion and formatting.
+
+```js
+// defaults
+{
+  // if the length is an absolute length, this will be overridden
+  base: 16,
+  // formatting function for mutating the value before it's returned
+  formatter(value) { return value; }
+}
+```
+
+### $raw
 
 The raw CSS length that was passed into the constructor.
 
-### value
+### $value
 
 The unitless value of the length that was passed into the constructor.
 
-### unit
+### $unit
 
 The unit of the length that was passed into the constructor.
-
-### base
-
-The base for the length that was passed into the constructor. If the length is a
-relative unit or a pixel length, the base will be used. A fixed base will be
-used for absolute lengths.
-
-**Default:** 16
 
 ### cm
 

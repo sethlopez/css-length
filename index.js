@@ -27,7 +27,12 @@ const absoluteBases = {
   pt: 72 / 96
 };
 const absoluteUnits = Object.keys(absoluteBases);
-const relativeBase = 16;
+const defaults = {
+  base: 16,
+  formatter(value) {
+    return value;
+  }
+};
 
 /**
  * @class CSSLength
@@ -36,26 +41,19 @@ const relativeBase = 16;
  * unit and other calculable units.
  */
 export default class CSSLength {
-  constructor(raw, base) {
-    const [, value, unit] = /^([-\+0-9\.]+)(cm|em|in|mm|pc|%|pt|px|rem)$/i.match(raw);
+  constructor(raw, options = {}) {
+    const [, value, unit] = raw.match(/^([+-]?[0-9\.]+)(cm|em|in|mm|pc|%|pt|px|rem)$/);
 
+    this.$config = Object.assign({}, defaults, options);
     this.$raw = raw;
     this.$value = +value;
     this.$unit = unit;
-    this.$base = null;
 
-    // set the base according to the unit
-    if (absoluteUnits.indexOf(this.$unit)) {
-      this.$base = absoluteBases[this.$unit];
-    } else {
-      this.$base = +base || relativeBase;
+    // override the base if the length is an absolute unit
+    if (absoluteUnits.indexOf(this.$unit) > -1) {
+      this.$config.base = absoluteBases[this.$unit];
     }
   }
-
-  get raw() { return this.$raw; }
-  get value() { return this.$value; }
-  get unit() { return this.$unit; }
-  get base() { return this.$base; }
 
   get cm() { return this.convert('cm'); }
   get em() { return this.convert('em'); }
@@ -74,23 +72,37 @@ export default class CSSLength {
    * @returns  {String}          The converted unit.
    */
   convert(toUnit) {
-    const toBase = absoluteUnits.indexOf(toUnit) ? absoluteBases[toUnit] : this.$base;
+    const fromConversion = this.$unit === '%' ? 'pct' : this.$unit;
+    const toConversion = toUnit === '%' ? 'pct' : toUnit;
+    let toBase = this.$config.base;
     let normalized;
     let converted;
+    let formatted;
 
     // cancel early if the units are the same - no need for conversion
     if (this.$unit === toUnit) { return this.$raw; }
 
+    // override the base in toUnit is an absolute unit
+    if (absoluteUnits.indexOf(toUnit) > -1) {
+      toBase = absoluteBases[toUnit];
+    }
+
     try {
-      normalized = conversions[this.$unit].from(this.$value, this.$base);
-      converted = conversions[toUnit].to(normalized, toBase);
+      if (this.$unit === 'px') {
+        normalized = this.$value;
+      } else {
+        normalized = conversions[fromConversion].from(this.$value, this.$config.base);
+      }
+
+      converted = conversions[toConversion].to(normalized, toBase);
+      formatted = this.$config.formatter(converted);
     } catch(error) {
       throw new Error(
-        `An error occurred while attempting to convert from "${this.$value}${fromUnit}" to "${toUnit}":
+        `An error occurred while attempting to convert from "${this.$value}${this.$unit}" to "${toUnit}":
         ${error.message}`
       );
     }
 
-    return converted;
+    return `${formatted}${toUnit}`;
   }
 }
