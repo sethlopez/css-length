@@ -17,7 +17,7 @@ Pass a CSS length and an optional pixel base into the constructor.
 ```js
 const cssLength = new CSSLength('24px', {
   base: 16,
-  formatter(value) { return value; }
+  formatter(value, toUnit) { return value; }
 });
 ```
 
@@ -44,7 +44,7 @@ The options used for conversion and formatting.
   // if the length is an absolute length, this will be overridden
   base: 16,
   // formatting function for mutating the value before it's returned
-  formatter(value) { return value; }
+  formatter(value, toUnit) { return value; }
 }
 ```
 

@@ -29,7 +29,7 @@ const absoluteBases = {
 const absoluteUnits = Object.keys(absoluteBases);
 const defaults = {
   base: 16,
-  formatter(value) {
+  formatter(value, toUnit) {
     return value;
   }
 };
@@ -72,12 +72,11 @@ export default class CSSLength {
    * @returns  {String}          The converted unit.
    */
   convert(toUnit) {
-    const fromConversion = this.$unit === '%' ? 'pct' : this.$unit;
-    const toConversion = toUnit === '%' ? 'pct' : toUnit;
+    const fromProp = this.$unit === '%' ? 'pct' : this.$unit;
+    const toProp = toUnit === '%' ? 'pct' : toUnit;
+    const fromBase = this.$config.base;
     let toBase = this.$config.base;
-    let normalized;
-    let converted;
-    let formatted;
+    let normalized, converted, formatted;
 
     // cancel early if the units are the same - no need for conversion
     if (this.$unit === toUnit) { return this.$raw; }
@@ -88,21 +87,28 @@ export default class CSSLength {
     }
 
     try {
+      // shortcut if the pixel value is already known
       if (this.$unit === 'px') {
         normalized = this.$value;
       } else {
-        normalized = conversions[fromConversion].from(this.$value, this.$config.base);
+        normalized = conversions[fromProp].from(this.$value, fromBase);
       }
 
-      converted = conversions[toConversion].to(normalized, toBase);
-      formatted = this.$config.formatter(converted);
+      // shortcut if the pixel value is already known
+      if (toUnit === 'px') {
+        converted = normalized;
+      } else {
+        converted = conversions[toProp].to(normalized, toBase);
+      }
+
+      formatted = this.$config.formatter(converted, toUnit);
     } catch(error) {
       throw new Error(
-        `An error occurred while attempting to convert from "${this.$value}${this.$unit}" to "${toUnit}":
+        `An error occurred while attempting to convert from "${this.$value + this.$unit}" to "${toUnit}":
         ${error.message}`
       );
     }
 
-    return `${formatted}${toUnit}`;
+    return `${formatted + toUnit}`;
   }
 }
