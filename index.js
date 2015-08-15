@@ -30,7 +30,7 @@ const absoluteUnits = Object.keys(absoluteBases);
 const defaults = {
   base: 16,
   formatter(value, toUnit) {
-    return value;
+    return `${value + toUnit}`;
   }
 };
 
@@ -109,6 +109,6 @@ export default class CSSLength {
       );
     }
 
-    return `${formatted + toUnit}`;
+    return formatted;
   }
 }
