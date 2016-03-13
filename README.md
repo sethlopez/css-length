@@ -1,33 +1,32 @@
 # CSS Length
 
-> Represents a CSS length value and handles the conversion between the original
-> unit and other calculable units.
-
-You can use this library to convert most CSS length measurements into most other
-CSS length measurements. The only exceptions are viewport lengths.
+Creates a JavaScript representation of a CSS length value, allowing the user to
+get the unit or unitless value and convert the length from one unit to another.
+**Viewport lengths are unsupported.**
 
 ## Usage
 
 ```js
-new CSSLength(length[, base])
-```
+// Basic usage. Assumes a base pixel size of 16.
+let length = new CSSLength('24px');
 
-Pass a CSS length and an optional pixel base into the constructor.
-
-```js
-const cssLength = new CSSLength('24px', {
+// You may pass an options object containing the base pixel size
+// to use for conversions or the formatter to use for output.
+let length = new CSSLength('24px', {
   base: 16,
-  formatter(value, toUnit) { return `${value + toUnit}`; }
+  formatter(value, unit) { return value + unit; }
 });
-```
 
-You can then access the conversion as a property.
-
-```js
-cssLength.em; // => "1.5em"
-cssLength.rem; // => "1.5rem"
-cssLength.in; // => "0.25in"
-// ...
+// You can then access the conversion as a property.
+length.cm;  // => "0.635cm"
+length.em;  // => "1.5em"
+length.in;  // => "0.25in"
+length.mm;  // => "6.35mm"
+length.pc;  // => "1.5pc"
+length.pct; // => "150%"
+length.pt;  // => "18pt"
+length.px;  // => "24px"
+length.rem; // => "1.5rem"
 ```
 
 ## Properties
@@ -44,21 +43,21 @@ The options used for conversion and formatting.
   // if the length is an absolute length, this will be overridden
   base: 16,
   // formatting function for mutating the value before it's returned
-  formatter(value, toUnit) { return `${value + toUnit}`; }
+  formatter(value, unit) { return value + unit; }
 }
 ```
 
-### $raw
+### raw
 
-The raw CSS length that was passed into the constructor.
+The raw CSS length string that was passed into the constructor. (`[24px]`)
 
-### $value
+### value
 
-The unitless value of the length that was passed into the constructor.
+The unitless value of the length that was passed into the constructor. (`[24]px`)
 
-### $unit
+### unit
 
-The unit of the length that was passed into the constructor.
+The unit of the length that was passed into the constructor. (`24[px]`)
 
 ### cm
 
