@@ -1,6 +1,6 @@
 {
   "name": "css-length",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CSS length parser and converter library.",
   "main": "dist/index.js",
   "scripts": {
