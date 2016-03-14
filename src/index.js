@@ -106,8 +106,7 @@ module.exports = class CSSLength {
       formatted = this.$config.formatter(converted, unit);
     } catch(error) {
       throw new Error(
-        `An error occurred while attempting to convert from "${this.value + this.unit}" to "${unit}":
-        ${error.message}`
+        `An error occurred while attempting to convert from "${this.value + this.unit}" to "${unit}":\n${error.message}`
       );
     }
 
